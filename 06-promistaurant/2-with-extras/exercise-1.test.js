@@ -1,20 +1,20 @@
 import {
-    bases,
-    extras,
-    sauces,
-    sizes,
-    toppings,
+  bases,
+  extras,
+  sauces,
+  sizes,
+  toppings,
 } from '../kitchen/ingredients.js';
 import {
-    addPreparedExtras,
-    addSauce,
-    addTopping,
-    addVegetables,
-    bag,
-    prepareExtra,
-    preparePortion,
-    prettyPrintMeal,
-    STATUSES,
+  addPreparedExtras,
+  addSauce,
+  addTopping,
+  addVegetables,
+  bag,
+  prepareExtra,
+  preparePortion,
+  prettyPrintMeal,
+  STATUSES,
 } from '../kitchen/steps.js';
 
 /**
@@ -25,47 +25,52 @@ import {
  *  Complete the following code so that the test passes
  */
 
-const preparedExtras = _;
+const preparedExtras = Promise.all(
+  [extras.pineapple, extras.mushrooms].map((e) => prepareExtra(e)),
+);
 
-const mealWithoutExtras = _;
+const mealWithoutExtras = preparePortion(sizes.large, bases.fineNoodles)
+  .then((meal) => addVegetables(meal))
+  .then((meal) => addTopping(meal, toppings.shellfish))
+  .then((meal) => addSauce(meal, sauces.sweetChilli));
 
-const fiensOrder = _;
+const fiensOrder = Promise.all([preparedExtras, mealWithoutExtras])
+  .then(([thePreparedExtras, meal]) =>
+    addPreparedExtras(meal, thePreparedExtras),
+  )
+  .then((meal) => bag(meal));
 
 fiensOrder
-    .then((theMeal) => {
-        prettyPrintMeal(theMeal);
+  .then((theMeal) => {
+    prettyPrintMeal(theMeal);
 
-        describe("Fien's meal", () => {
-            it('should be bagged', () => {
-                expect(theMeal.status).toEqual(STATUSES.BAGGED);
-            });
-            it('should be size: large', () => {
-                expect(theMeal.size).toEqual(sizes.large);
-            });
-            it('should have base: fine noodles', () => {
-                expect(theMeal.base).toEqual(bases.fineNoodles);
-            });
-            it('should have sauce: sweet chili', () => {
-                expect(theMeal.sauce).toEqual(sauces.sweetChilli);
-            });
-            it('should have topping: shell fish', () => {
-                expect(theMeal.topping).toEqual(toppings.shellfish);
-            });
-            describe('the meal should have 2 extras', () => {
-                it('containing 2 items', () => {
-                    expect(theMeal.extras.length).toEqual(2);
-                });
-                it('includes: pineapple', () => {
-                    expect(theMeal.extras.includes(extras.pineapple)).toEqual(
-                        true,
-                    );
-                });
-                it('includes: mushrooms', () => {
-                    expect(theMeal.extras.includes(extras.mushrooms)).toEqual(
-                        true,
-                    );
-                });
-            });
+    describe("Fien's meal", () => {
+      it('should be bagged', () => {
+        expect(theMeal.status).toEqual(STATUSES.BAGGED);
+      });
+      it('should be size: large', () => {
+        expect(theMeal.size).toEqual(sizes.large);
+      });
+      it('should have base: fine noodles', () => {
+        expect(theMeal.base).toEqual(bases.fineNoodles);
+      });
+      it('should have sauce: sweet chili', () => {
+        expect(theMeal.sauce).toEqual(sauces.sweetChilli);
+      });
+      it('should have topping: shell fish', () => {
+        expect(theMeal.topping).toEqual(toppings.shellfish);
+      });
+      describe('the meal should have 2 extras', () => {
+        it('containing 2 items', () => {
+          expect(theMeal.extras.length).toEqual(2);
         });
-    })
-    .catch((err) => console.error(err));
+        it('includes: pineapple', () => {
+          expect(theMeal.extras.includes(extras.pineapple)).toEqual(true);
+        });
+        it('includes: mushrooms', () => {
+          expect(theMeal.extras.includes(extras.mushrooms)).toEqual(true);
+        });
+      });
+    });
+  })
+  .catch((err) => console.error(err));
