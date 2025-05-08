@@ -12,7 +12,7 @@ import { ORIGIN } from '../config.js';
 export const evolutionChain = async (chainId = 1) => {
   // --- generate and declare your resource's URL ---
   // docs: https://pokeapi.co/docs/v2#evolution-section
-  const URL = `${ORIGIN}/evolution-chain/${chainId}`;
+  const URL = `${ORIGIN}/evolution-chain/${chainId}/`;
 
   console.log(`Fetching from: ${URL}`);
 
@@ -34,20 +34,19 @@ export const evolutionChain = async (chainId = 1) => {
   // --- process the fetched data (if necessary) ---
   //  you do not need to use `await` below this comment
   //  you can refactor this to a separate logic function and test it
-   const getSpeciesInOrder = (node, list = []) => {
-    if (!node) return list;
-    list.push({
-      name: node.species.name,
-      url: node.species.url,
+  const pokemon = [];
+
+  const pokeEvoChain = (chain) => {
+    pokemon.push({
+      name: chain.species.name,
+      url: chain.species.url,
     });
-    for (const evo of node.evolves_to) {
-      getSpeciesInOrder(evo, list);
+    if (chain.evolves_to && chain.evolves_to.length > 0) {
+      chain.evolves_to.forEach((evo) => pokeEvoChain(evo));
     }
-    return list;
   };
 
-  const pokemon = getSpeciesInOrder(data.chain);; // tricky one!  you will need to push all the species into an array
-
+  pokeEvoChain(data.chain);
   // --- return the final data ---
   return pokemon;
 };
